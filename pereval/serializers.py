@@ -18,7 +18,7 @@ class CoordsSerializer(serializers.ModelSerializer):
 class LevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Level
-        fields = ['winter', 'spring', 'summer', 'autumn']
+        fields = ['winter_lev', 'spring_lev', 'summer_lev', 'autumn_lev']
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -31,7 +31,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 class PerevalSerializer(WritableNestedModelSerializer):
     user = UserSerializer()
-    coord_id = CoordsSerializer()
+    coord = CoordsSerializer()
     level = LevelSerializer(allow_null=True)
     images = ImageSerializer(many=True)
     add_time = serializers.DateTimeField(format='%d-%m-%Y %H:%M:%S', read_only=True)
@@ -49,22 +49,22 @@ class PerevalSerializer(WritableNestedModelSerializer):
             'add_time',
             'user',
             'connect',
-            'coord_id',
+            'coord',
             'level',
             'images'
         )
 
     def create(self, validated_data, **kwargs):
         user = validated_data.pop('user')
-        coord_id = validated_data.pop('coord_id')
+        coord = validated_data.pop('coord')
         level = validated_data.pop('level')
         images = validated_data.pop('images')
 
         user, created = Users.object.get_or_create(**user)
 
-        coord_id = Coords.objects.create(**coord_id)
+        coord_id = Coords.objects.create(**coord)
         level = Level.objects.create(**level)
-        pereval = Pereval.objects.create(**validated_data, user=user, coord_id=coord_id, level=level, status="NW")
+        pereval = Pereval.objects.create(**validated_data, user=user, coord=coord, level=level, status="NW")
 
         for image in images:
             data = image.pop('data')

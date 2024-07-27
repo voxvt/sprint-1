@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+
 
 
 class Users(models.Model):
@@ -29,13 +31,23 @@ class Pereval(models.Model):
         (REJECTED, 'модерация прошла, информация не принята'),
     ]
 
+    CONNECTION = 'connection'
+    DISCONNECT = 'disconnect'
+    UNSTABLE_CONNECTION = 'unstable connection'
+
+    CONNECT_CHOICES = [
+        (CONNECTION, 'Connection'),
+        (DISCONNECT, 'Disconnect'),
+        (UNSTABLE_CONNECTION, 'Unstable Connection'),
+    ]
+
     beauty_title = models.CharField(max_length=128, verbose_name='Тип объекта')
     title = models.CharField(max_length=128, verbose_name='Название объекта')
     other_titles = models.CharField(max_length=128, verbose_name='Другое название')
-    connect = models.CharField(max_length=128, verbose_name='Подключение')
+    connect = models.CharField(max_length=32, choices=CONNECT_CHOICES, verbose_name='Подключение')
     add_time = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
-    coord_id = models.OneToOneField('Coords', on_delete=models.CASCADE)
-    user = models.ForeignKey(Users, on_delete=models.CASCADE, verbose_name='Турист')
+    coord = models.OneToOneField('Coords', on_delete=models.CASCADE)
+    user = models.ForeignKey('Users', on_delete=models.CASCADE, verbose_name='Турист')
     status = models.CharField(max_length=2, choices=STATUS_CHOICES, default=NEW, verbose_name='Статус записи')
     level = models.ForeignKey('Level', on_delete=models.CASCADE, verbose_name='Уровень сложности')
 
@@ -45,6 +57,7 @@ class Pereval(models.Model):
 
     def __str__(self):
         return f'{self.pk} {self.beauty_title}{self.status}'
+
 
 
 class Coords(models.Model):
@@ -61,28 +74,36 @@ class Coords(models.Model):
 
 
 class Level(models.Model):
-    winter = '4A'
-    spring = '2A'
-    summer = '1A'
-    autumn = '3A'
+    WINTER = '4A'
+    SPRING = '2A'
+    SUMMER = '1A'
+    AUTUMN = '3A'
 
     LEVEL_CHOICES = (
-        ('4A', 'winter'),
-        ('2A', 'spring'),
-        ('1A', 'summer'),
-        ('3A', 'autumn'),
+        ('1A', '1A'),
+        ('2A', '2A'),
+        ('3A', '3A'),
+        ('4A', '4A'),
     )
-    winter_lev = models.CharField(max_length=2, choices=LEVEL_CHOICES, default=winter, verbose_name='Зима')
-    spring_lev = models.CharField(max_length=2, choices=LEVEL_CHOICES, default=winter, verbose_name='Весна')
-    summer_lev = models.CharField(max_length=2, choices=LEVEL_CHOICES, default=winter, verbose_name='Лето')
-    autumn_lev = models.CharField(max_length=2, choices=LEVEL_CHOICES, default=winter, verbose_name='Осень')
+
+    winter_lev = models.CharField(max_length=2, choices=LEVEL_CHOICES, default=WINTER, verbose_name='Зима')
+    spring_lev = models.CharField(max_length=2, choices=LEVEL_CHOICES, default=SPRING, verbose_name='Весна')
+    summer_lev = models.CharField(max_length=2, choices=LEVEL_CHOICES, default=SUMMER, verbose_name='Лето')
+    autumn_lev = models.CharField(max_length=2, choices=LEVEL_CHOICES, default=AUTUMN, verbose_name='Осень')
 
     class Meta:
         verbose_name = 'Уровень сложности'
         verbose_name_plural = 'Уровни сложности'
 
     def __str__(self):
-        return f'Весна:{self.spring_lev} Лето:{self.summer_lev} Осень:{self.autumn_lev} Зима:{self.winter_lev}'
+        return (
+            f'Зима: {self.winter_lev} '
+            f'Весна: {self.spring_lev} '
+            f'Лето: {self.summer_lev} '
+            f'Осень: {self.autumn_lev}'
+        )
+
+
 
 
 class Images(models.Model):

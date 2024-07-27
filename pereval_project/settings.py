@@ -44,7 +44,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'pereval',
     'django_filters',
+    'drf_yasg',
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -152,3 +155,5 @@ REST_FRAMEWORK = {
        'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+
